@@ -30,6 +30,7 @@ const checkoutSuccessPage = fs.readFileSync(
 
 
 router.post("/create-checkout-session", async (req, res) => {
+  console.log(req.body.userId);
   const customer = await stripe.customers.create({
     metadata: {
       userId: req.body.userId,
@@ -43,8 +44,8 @@ router.post("/create-checkout-session", async (req, res) => {
       price_data: {
         currency: "usd",
         product_data: {
-          name: item.name,
-          // images: [item.image],
+          name: item.title,
+          images: item.imageUrl,
           description: item.desc,
           metadata: {
             id: item.id,
@@ -105,90 +106,64 @@ const createOrder = async (customer, data) => {
 
 // Stripe webhoook
 
-// router.post(
-//   "/webhook",
-//   bodyParser.raw({ type: "*/*" }),
-//   async (req, res) => {
-//     // req.rawBody = buf.toString();
-//     let data;
-//     let eventType;
+router.post(
+  "/webhook",
+  bodyParser.raw({ type: "*/*" }),
+  async (req, res) => {
+   
+    let data;
+    let eventType;
 
-//     // Check if webhook signing is configured.
-//     let webhookSecret;
-//     webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+    // Check if webhook signing is configured.
+    let webhookSecret;
+    webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
-//     if (webhookSecret) {
-//       // Retrieve the event by verifying the signature using the raw body and secret.
-//       let event;
-//       let signature = req.headers["stripe-signature"];
+    if (webhookSecret) {
+      // Retrieve the event by verifying the signature using the raw body and secret.
+      let event;
+      let signature = req.headers["stripe-signature"];
 
-//       try {
-//         event = stripe.webhooks.constructEvent(
-//           req.body,
-//           signature,
-//           webhookSecret
-//         );
-//         console.log("Webhooks verified");
-//       } catch (err) {
-//         console.log(`⚠️  Webhook signature verification failed:  ${err}`);
-//         return res.sendStatus(400);
-//       }
-//       // Extract the object from the event.
-//       data = event.data.object;
-//       eventType = event.type;
-//     } else {
-//       // Webhook signing is recommended, but if the secret is not configured in `config.js`,
-//       // retrieve the event data directly from the request body.
-//       data = req.body.data.object;
-//       eventType = req.body.type;
-//     }
+      try {
+        event = stripe.webhooks.constructEvent(
+          req.body,
+          signature,
+          webhookSecret
+        );
+        console.log("Webhooks verified");
+      } catch (err) {
+        console.log(`⚠️  Webhook signature verification failed:  ${err}`);
+        return res.sendStatus(400);
+      }
+      // Extract the object from the event.
+      data = event.data.object;
+      eventType = event.type;
+    } else {
+      // Webhook signing is recommended, but if the secret is not configured in `config.js`,
+      // retrieve the event data directly from the request body.
+      data = req.body.data.object;
+      eventType = req.body.type;
+    }
 
-//     // Handle the checkout.session.completed event
-//     if (eventType === "checkout.session.completed") {
-//       console.log("Session Completed");
-//       // stripe.customers
-//       //   .retrieve(data.customer)
-//       //   .then(async (customer) => {
-//       //     try {
-//       //       // CREATE ORDER
-//       //       createOrder(customer, data);
-//       //     } catch (err) {
-//       //       console.log(typeof createOrder);
-//       //       console.log(err);
-//       //     }
-//       //   })
-//       //   .catch((err) => console.log(err.message));
-//     }
+    // Handle the checkout.session.completed event
+    if (eventType === "checkout.session.completed") {
+      console.log("Session Completed");
+      // stripe.customers
+      //   .retrieve(data.customer)
+      //   .then(async (customer) => {
+      //     try {
+      //       // CREATE ORDER
+      //       createOrder(customer, data);
+      //     } catch (err) {
+      //       console.log(typeof createOrder);
+      //       console.log(err);
+      //     }
+      //   })
+      //   .catch((err) => console.log(err.message));
+    }
 
-//     res.status(200).end();
-//   }
-// );
+    res.status(200).end();
+  }
+);
 
-// router.post('/webhook', express.raw({type: 'application/json'}), (request, response) => {
-//   const sig = request.headers['stripe-signature'];
-
-//   let event;
-
-//   try {
-//     event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
-//   } catch (err) {
-//     response.status(400).send(`Webhook Error: ${err.message}`);
-//     return;
-//   }
-
-//   // Handle the event
-//   switch (event.type) {
-//     case 'payment_intent.succeeded':
-//       const paymentIntentSucceeded = event.data.object;
-//       // Then define and call a function to handle the event payment_intent.succeeded
-//       break;
-//     // ... handle other event types
-//     default:
-//       console.log(`Unhandled event type ${event.type}`);
-//   }
-
-//   // Return a 200 response to acknowledge receipt of the event
-//   response.send();
-// });
 
 module.exports = router;
