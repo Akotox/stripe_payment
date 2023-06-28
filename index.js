@@ -29,14 +29,14 @@ app.post('/webhook', express.raw({type: 'application/json'}), (request, response
       return;
     }
   
-    data = event.data.object;
-    eventType = event.type;
+    // data = event.data.object;
+    // eventType = event.type;
     // Handle the event
     lo
     switch (event.type) {
       case 'payment_intent.succeeded':
         const paymentIntentSucceeded = event.data.object;
-        console.log(paymentIntentSucceeded);
+        // console.log(paymentIntentSucceeded);
         break;
       // ... handle other event types
       default:
