@@ -13,7 +13,7 @@ dotenv.config()
 
 const stripe = Stripe(process.env.STRIPE_SECRET);
 mongoose.connect(process.env.MONGO_URL).then(() => console.log("db connected")).catch((err) => console.log(err));
-const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+const endpointSecret =  'whsec_SiVF3pm2dJlWhrLQwlRqZ6tHPaDLQJUc';
 
 
 app.post('/webhook', express.raw({type: 'application/json'}), (request, response) => {
