@@ -36,7 +36,7 @@ app.post('/webhook', express.raw({type: 'application/json'}), (request, response
     switch (event.type) {
       case 'payment_intent.succeeded':
         const paymentIntentSucceeded = event.data.object;
-        // console.log(paymentIntentSucceeded);
+        console.log(paymentIntentSucceeded);
         break;
       // ... handle other event types
       default:
@@ -44,7 +44,7 @@ app.post('/webhook', express.raw({type: 'application/json'}), (request, response
     }
   
     // Return a 200 response to acknowledge receipt of the event
-    response.send();
+    res.status(200).end();
   });
 
 app.use(bodyParser.json({ limit: '10mb' }));
