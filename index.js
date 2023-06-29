@@ -13,7 +13,7 @@ dotenv.config()
 
 const stripe = Stripe(process.env.STRIPE_SECRET);
 mongoose.connect(process.env.MONGO_URL).then(() => console.log("db connected")).catch((err) => console.log(err));
-const endpointSecret =  'whsec_SiVF3pm2dJlWhrLQwlRqZ6tHPaDLQJUc';
+const endpointSecret = "whsec_SiVF3pm2dJlWhrLQwlRqZ6tHPaDLQJUc";
 
 
 app.post('/webhook', express.raw({type: 'application/json'}), (request, response) => {
@@ -23,20 +23,16 @@ app.post('/webhook', express.raw({type: 'application/json'}), (request, response
   
     try {
       event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
-      
     } catch (err) {
       response.status(400).send(`Webhook Error: ${err.message}`);
       return;
     }
   
-    data = event.data.object;
-    eventType = event.type;
     // Handle the event
-    
     switch (event.type) {
       case 'payment_intent.succeeded':
         const paymentIntentSucceeded = event.data.object;
-        console.log(paymentIntentSucceeded);
+        // Then define and call a function to handle the event payment_intent.succeeded
         break;
       // ... handle other event types
       default:
@@ -44,7 +40,7 @@ app.post('/webhook', express.raw({type: 'application/json'}), (request, response
     }
   
     // Return a 200 response to acknowledge receipt of the event
-    res.status(200).end();
+    response.send();
   });
 
 app.use(bodyParser.json({ limit: '10mb' }));
